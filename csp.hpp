@@ -11,7 +11,6 @@
 #include <deque>
 #include <pthread.h>
 #include <typeinfo>
-#include <assert.h>
 
 namespace csp {
 class Process;
@@ -73,6 +72,7 @@ private:
 	std::deque<Message *> reject_queue;
 	const char *last_reject_file;
 	int last_reject_lineno;
+	bool joined;
 	
 	static void *start_thread(void *athis);
 
@@ -94,7 +94,10 @@ protected:
 	void RejectMessage(Message *m);
 
 public:
-	Process(void) 
+	Process(void) : 
+	last_reject_file(0),
+	last_reject_lineno(0),
+	joined(false)
 	{
 		pthread_cond_init(&newitem, NULL);
 		pthread_mutex_init(&mutex, NULL);
@@ -111,10 +114,29 @@ public:
 
 	/** Block until this process finishes */
 	void Wait(void) {
-		pthread_join(thread,NULL);
+		bool willjoin = false;
+		{
+			_Lock l(mutex);
+			willjoin = !joined;
+			joined=true;
+		}
+		if (willjoin)
+			pthread_join(thread,NULL);
 	}
 
-	virtual ~Process(void) {};
+	virtual ~Process(void) 	
+	{
+		bool willjoin = false;
+		{
+			_Lock l(mutex);
+			willjoin = !joined;
+			joined=true;
+		}
+		if (willjoin) {
+			fprintf(stderr,"ERROR: Destroying a process before it's been Wait()'d for\n");
+			pthread_join(thread,NULL);
+		}
+	}
 };
 
 }

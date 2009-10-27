@@ -9,6 +9,9 @@ void *Process::start_thread(void *athis)
 	Process *p = static_cast<Process *>(athis);
 	p->Run();
 	/* TODO: Debug: Dump the message queue here as a "wtf?" */
+	/* Esp the reject queue, we can also list __FILE__:__LINE__ of who
+         * rejected it too.
+         */
 	return NULL;
 }
 
