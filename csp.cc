@@ -12,6 +12,7 @@ void *Process::start_thread(void *athis)
 	return NULL;
 }
 
+#undef ReceiveMessage
 Message *Process::ReceiveMessage(const char *reject_file, int reject_lineno)
 {
 	_Lock l(mutex);

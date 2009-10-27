@@ -19,13 +19,13 @@ public:
 		int counter = 0;
 		while (1) {
 			Message *m;
-			m = ReceiveMessage(__FILE__, __LINE__);
+			m = ReceiveMessage();
 
-			if ( typeid(*m) == typeid(AddMessage) ) {
+			if ( has_type<AddMessage>(m) ) {
 				++counter;
 				delete m;
 			}
-			else if ( typeid(*m) == typeid(GetMessage) ) {
+			else if ( has_type<GetMessage>(m) ) {
 				m->m_sender->QueueMessage(
 					new ValueMessage<int>(this, counter));
 				delete m;
@@ -43,11 +43,11 @@ public:
 
 		c->QueueMessage(new AddMessage(this));
 		c->QueueMessage(new GetMessage(this));
-		Message *m = ReceiveMessage(__FILE__, __LINE__);
+		Message *m = ReceiveMessage();
 		printf("%d\n",dynamic_cast<ValueMessage<int>*>(m)->value);
 		c->QueueMessage(new AddMessage(this));
 		c->QueueMessage(new GetMessage(this));
-		m = ReceiveMessage(__FILE__, __LINE__);
+		m = ReceiveMessage();
 		printf("%d\n",dynamic_cast<ValueMessage<int>*>(m)->value);
 	}
 };

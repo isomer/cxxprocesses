@@ -61,6 +61,9 @@ public:
 	}
 };
 
+template<class C,class T>
+bool has_type(T *x) { return typeid(*x) == typeid(C); }
+
 class Process {
 private:
 	pthread_cond_t newitem;
@@ -79,6 +82,7 @@ protected:
  	 * \param reject_lineno	should be passed in __LINE__
  	 */
 	Message *ReceiveMessage(const char *reject_file, int reject_lineno);
+#define ReceiveMessage() ReceiveMessage(__FILE__,__LINE__)
 
 	/** Reject handling a message at this time.
 	 * \param m 	Message to reject
